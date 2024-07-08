@@ -39,7 +39,7 @@ driver.find_element(By.XPATH, "//button[@type='submit']").click()
 wait.until(EC.presence_of_element_located((By.XPATH, "//input[@aria-label='Search']")))
 
 # Open the LinkedIn search URL
-url = 'https://www.linkedin.com/search/results/people/?keywords=talent%20acquisition%20cred&origin=GLOBAL_SEARCH_HEADER&page=2&sid=41w'
+url = 'https://www.linkedin.com/search/results/people/?keywords=talent%20acquisition%20groww&origin=GLOBAL_SEARCH_HEADER&page=2&sid=41w'
 driver.get(url)
 
 # Wait for the page to load
