@@ -10,7 +10,7 @@ import time
 
 # Read credentials from a file
 def get_credentials():
-    with open('credentials.json') as cred_file:
+    with open('credential.json') as cred_file:
         return json.load(cred_file)
 
 # Get LinkedIn credentials
