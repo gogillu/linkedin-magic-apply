@@ -1,1 +1,8 @@
 credential.json
+credential*
+credential_instahyre.json
+log*
+log/
+*.csv
+__pycache__/
+statistics/

@@ -1,0 +1,4 @@
+{
+    "max_conversations": 300,
+    "min_days_between_pings": 2
+}

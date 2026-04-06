@@ -1,100 +1,29 @@
-import json
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
-from webdriver_manager.chrome import ChromeDriverManager
-import time
+import argparse
+from linkedin.main import main as linkedin_main, pa_main as linkedin_pa_main
 
-number_of_person_per_company = 5
+def main():
+    parser = argparse.ArgumentParser(description="Automate connection requests.")
+    parser.add_argument(
+        "--applicationPortal",
+        type=str,
+        choices=["linkedin", "instahyre"],
+        default="linkedin",
+        help="Portal to use: linkedin or instahyre (default: linkedin)"
+    )
+    parser.add_argument(
+        "--pa",
+        action="store_true",
+        help="Ping Again: re-send messages to people whose last message was sent by you, starts with 'Hello', and is older than 2 days"
+    )
+    args = parser.parse_args()
 
-# Read credentials from a file
-def get_credentials():
-    with open('credential.json') as cred_file:
-        return json.load(cred_file)
+    if args.pa:
+        linkedin_pa_main()
+    elif args.applicationPortal == "instahyre":
+        from instahyre.instahyre_apply import apply_to_jobs
+        apply_to_jobs()
+    else:
+        linkedin_main()
 
-# Get LinkedIn credentials
-credentials = get_credentials()
-linkedin_email = credentials['email']
-linkedin_password = credentials['password']
-
-# Set up ChromeDriver
-service = Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=service)
-
-# Open LinkedIn login page
-driver.get('https://www.linkedin.com/login')
-
-# Wait for the login elements to be present
-wait = WebDriverWait(driver, 10)
-email_input = wait.until(EC.presence_of_element_located((By.ID, 'username')))
-password_input = driver.find_element(By.ID, 'password')
-
-# Enter credentials and log in
-email_input.send_keys(linkedin_email)
-password_input.send_keys(linkedin_password)
-driver.find_element(By.XPATH, "//button[@type='submit']").click()
-
-# Wait for the home page to load
-wait.until(EC.presence_of_element_located((By.XPATH, "//input[@aria-label='Search']")))
-
-# Read list of companies from a file
-with open('companies.txt') as file:
-    companies = [line.strip() for line in file.readlines()]
-print(f"Companies to target: {companies}")
-
-for company in companies:
-    print(f"Targeting company: {company}")
-    company = company.replace(' ', '%20')
-
-    # Open the LinkedIn search URL
-    url = 'https://www.linkedin.com/search/results/people/?keywords=talent%20acquisition%20{company}&origin=GLOBAL_SEARCH_HEADER&page=2&sid=41w'.format(company=company)
-    driver.get(url)
-
-    # Wait for the page to load
-    wait.until(EC.presence_of_element_located((By.XPATH, "//button[contains(@aria-label, 'Invite')]")))
-
-    # Iterate over the list of people and perform the required actions
-    people = driver.find_elements(By.XPATH, "//button[contains(@aria-label, 'Invite')]")[:number_of_person_per_company]
-
-    for person in people:
-        try:
-            # Scroll into view and click on the connect button
-            ActionChains(driver).move_to_element(person).perform()
-            time.sleep(1)  # Allow some time for the element to come into view
-            person.click()
-            
-            # Wait for a while to see the response on the UI
-            time.sleep(3)
-            
-            # Wait for the "Add a note" button to appear and click it
-            add_note_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(@aria-label, 'Add a note')]")))
-            add_note_button.click()
-            
-            # Write the message
-            message_box = wait.until(EC.presence_of_element_located((By.XPATH, "//textarea[@name='message']")))
-            message_box.send_keys("""Hello,
-I am a Software developer with 5+ years of experience in developing Scalable and Modular Systems, and am currently seving notice period in Microsoft.
-I will be a great fit for Senior SDE role, and I am very much inclined towards joining your org.
-PFA my resume attached.
-Regards,
-Prakhar"""
-            )
-            
-            # Find the "Send" button by its aria-label and click it
-            send_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[@aria-label='Send invitation']")))
-            send_button.click()
-
-            print(f"Connection request sent for company: {company}")
-            
-            # Wait for a while to see the response on the UI
-            time.sleep(5)
-            
-        except Exception as e:
-            print(f"Skipping person due to error: {e}")
-            continue
-
-# Close the driver
-driver.quit()
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,5 @@
+Hello,
+I have 6 years of experience in software development, earlier worked at VMware, Nuclei, Microsoft.
+I have exposure to various technologies like Java, Python, C#, Azure, AWS, GCP, Kubernetes, Docker, CI/CD pipelines and more.
+Actively looking for Software Dev opportunities.
+Please refer my Resume : https://bit.ly/govind_dev
